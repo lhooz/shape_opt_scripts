@@ -7,7 +7,7 @@ FPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012.CATPart'
 
 EXPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012.igs'
 
-NEW_PARAM = {r'opt_U1': r'0mm'}
+NEW_PARAM = {r'opt_U1': r'0.0001mm'}
 
 CATIA = catia_app.CatiaApp()
 CATIA.cadopen(FPATH)
