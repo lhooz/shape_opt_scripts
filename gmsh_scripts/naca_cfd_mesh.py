@@ -3,7 +3,7 @@ import gmsh
 
 gmsh.initialize()
 
-gmsh.open(r'/home/hao/ShapeOPT/TestDev2/Vn/NACA0012.igs')
+gmsh.open(r'/home/hao/ShapeOPT/TestDev2/Vn/NACA0012_original.igs')
 
 gmsh.model.addPhysicalGroup(2, [1], 1)
 gmsh.model.setPhysicalName(2, 1, r'fluid')
