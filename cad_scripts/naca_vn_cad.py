@@ -2,18 +2,28 @@
 
 import catia_app
 
-from win32com.client import Dispatch
 FPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012.CATPart'
 PARAM_LIST = [
-    r'opt_U1', r'opt_U2', r'opt_U3', r'opt_U4', r'opt_U5', r'opt_L1',
-    r'opt_L2', r'opt_L3', r'opt_L4', r'opt_L5'
+    r'original', r'opt_U1_Y', r'opt_U2_Y', r'opt_U3_Y', r'opt_U4_Y',
+    r'opt_U5_Y', r'opt_L1_Y', r'opt_L2_Y', r'opt_L3_Y', r'opt_L4_Y',
+    r'opt_L5_Y', r'opt_LE_Y',
+    r'opt_TE_Y'
 ]
 
-for i in range(10):
-    EXPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012_' + PARAM_LIST[
-        i] + r'.igs'
+NO_PARAM = len(PARAM_LIST)
 
-    NEW_PARAM = {PARAM_LIST[i]: '10mm'}
+for i in range(NO_PARAM):
+    PARAMi = PARAM_LIST[i]
+    EXPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012_' + PARAMi + r'.igs'
+
+    if PARAMi == r'original':
+        PARAM_name = PARAM_LIST[i + 1]
+        fd_increment = r'0.0001mm'
+    else:
+        PARAM_name = PARAMi
+        fd_increment = r'1mm'
+
+    NEW_PARAM = {PARAM_name: fd_increment}
 
     CATIA = catia_app.CatiaApp()
     CATIA.cadopen(FPATH)
