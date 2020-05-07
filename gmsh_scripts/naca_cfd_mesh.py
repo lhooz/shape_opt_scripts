@@ -5,10 +5,10 @@ gmsh.initialize()
 
 gmsh.open(r'/home/hao/ShapeOPT/TestDev2/Vn/NACA0012.igs')
 
-# gmsh.model.addPhysicalGroup(2, [1], 1)
-# gmsh.model.setPhysicalName(2, 1, r'fluid')
-# gmsh.model.addPhysicalGroup(1, [1, 2], 1)
-# gmsh.model.setPhysicalName(1, 1, r'farfield')
+gmsh.model.addPhysicalGroup(2, [1], 1)
+gmsh.model.setPhysicalName(2, 1, r'fluid')
+gmsh.model.addPhysicalGroup(1, [1, 2], 1)
+gmsh.model.setPhysicalName(1, 1, r'farfield')
 gmsh.model.addPhysicalGroup(1, [3, 4], 2)
 gmsh.model.setPhysicalName(1, 2, r'airfoil')
 
@@ -22,6 +22,6 @@ gmsh.model.geo.synchronize()
 gmsh.model.mesh.generate(1)
 gmsh.model.mesh.generate(2)
 
-gmsh.write(r'/home/hao/ShapeOPT/TestDev2/NACA0012.vtk')
+gmsh.write(r'/home/hao/ShapeOPT/TestDev2/NACA0012.su2')
 
 gmsh.finalize()

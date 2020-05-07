@@ -1,17 +1,24 @@
 """using gmsh generate surface mesh for vn calculation"""
+import os
 import gmsh
 
-PARAM_LIST = [
-    r'opt_U1', r'opt_U2', r'opt_U3', r'opt_U4', r'opt_U5', r'opt_L1',
-    r'opt_L2', r'opt_L3', r'opt_L4', r'opt_L5'
-]
+input_cad_folder = r'/home/hao/ShapeOPT/TestDev2/Vn'
+output_mesh_folder = r'/home/hao/ShapeOPT/TestDev2/Vn'
 
-for i in range(10):
+input_files = []
+output_files = []
+for file in os.listdir(input_cad_folder):
+    if file.endswith(r'.igs'):
+        input_files.append(os.path.join(input_cad_folder, file))
+        output_files.append(
+            os.path.join(output_mesh_folder,
+                         file.split(r'.')[0] + r'.vtk'))
+NO_PARAM = len(input_files)
+for i in range(NO_PARAM):
 
     gmsh.initialize()
 
-    gmsh.open(r'/home/hao/ShapeOPT/TestDev2/Vn/NACA0012_' + PARAM_LIST[i] +
-              r'.igs')
+    gmsh.open(input_files[i])
 
     # gmsh.model.addPhysicalGroup(2, [1], 1)
     # gmsh.model.setPhysicalName(2, 1, r'fluid')
@@ -30,7 +37,6 @@ for i in range(10):
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
-    gmsh.write(r'/home/hao/ShapeOPT/TestDev2/Vn/NACA0012_' + PARAM_LIST[i] +
-               r'.vtk')
+    gmsh.write(output_files[i])
 
     gmsh.finalize()

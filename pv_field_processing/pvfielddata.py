@@ -4,7 +4,8 @@ using paraview vtk field data manipulator
 """
 
 import csv
-from paraview.simple import XMLUnstructuredGridReader, XMLPolyDataReader, SaveData, servermanager
+import numpy as np
+from paraview.simple import XMLUnstructuredGridReader, XMLPolyDataReader, LegacyVTKReader, SaveData, servermanager
 from paraview.simple import ExtractSurface, CellSize, CellCenters, GenerateSurfaceNormals, PointDatatoCellData, CellDatatoPointData, ProgrammableFilter
 
 
@@ -18,12 +19,17 @@ class FieldDataProcessing:
             FDATA = XMLPolyDataReader(FileName=[inputfile])
         elif inputfile.endswith(r'.vtu'):
             FDATA = XMLUnstructuredGridReader(FileName=[inputfile])
+        elif inputfile.endswith(r'vtk'):
+            temp_F = LegacyVTKReader(FileNames=[inputfile])
+            SaveData(r'/home/hao/.PVFieldData/input_vtk_to_vtu.vtu',
+                     proxy=temp_F)
+            FDATA = XMLUnstructuredGridReader(
+                FileName=[r'/home/hao/.PVFieldData/input_vtk_to_vtu.vtu'])
         else:
             print(r'Err: file cannot be opened:  ' + inputfile)
             importsuccess = False
 
         if importsuccess is True:
-            FDATA.PointArrayStatus = ['Surface_Sensitivity']
             self.f_data_in = ExtractSurface(Input=FDATA)
 
     def GetLength(self):
@@ -52,18 +58,37 @@ class FieldDataProcessing:
             AREA.append(CDATA.GetArray('Area').GetValue(i))
         return AREA
 
-    def GetCellSensitivity(self):
-        """get sensivity field for cells"""
+    def GetCellScalarField(self, scalar_field_name):
+        """get scalar field for cells"""
         PTOCELL = PointDatatoCellData(Input=self.f_data_in)
 
         CELLDATA = servermanager.Fetch(PTOCELL)
         NOFCELLS = CELLDATA.GetNumberOfCells()
         CDATA = CELLDATA.GetCellData()
 
-        CellSens = []
+        Sfield = []
         for i in range(NOFCELLS):
-            CellSens.append(CDATA.GetArray('Surface_Sensitivity').GetValue(i))
-        return CellSens
+            Sfield.append(CDATA.GetArray(scalar_field_name).GetValue(i))
+        return Sfield
+
+    def GetCellVectorField(self, vector_field_name):
+        """get vector field for cells"""
+        PTOCELL = PointDatatoCellData(Input=self.f_data_in)
+
+        CELLDATA = servermanager.Fetch(PTOCELL)
+        NOFCELLS = CELLDATA.GetNumberOfCells()
+        CDATA = CELLDATA.GetCellData()
+
+        Vfieldi = []
+        Vfield = []
+        for i in range(NOFCELLS):
+            Vfieldi = [
+                CDATA.GetArray(vector_field_name).GetTuple(i)[0],
+                CDATA.GetArray(vector_field_name).GetTuple(i)[1],
+                CDATA.GetArray(vector_field_name).GetTuple(i)[2]
+            ]
+            Vfield.append(Vfieldi)
+        return Vfield
 
     def GetCellPoints(self):
         """get point coordinates in cell vortices order"""
@@ -80,7 +105,6 @@ class FieldDataProcessing:
             ]
             Points.append(Pointi)
         return Points
-
 
     def GetCellCenters(self):
         """get cell center coordinates"""
@@ -100,8 +124,8 @@ class FieldDataProcessing:
             CellCenter.append(CellCenteri)
         return CellCenter
 
-    def GetNormal(self):
-        """get unit normal field"""
+    def Get2dNormal(self):
+        """get unit normal field for 2d surfaces"""
         FACENORMALFIELD = GenerateSurfaceNormals(Input=self.f_data_in)
         FACENORMALFIELD.ComputeCellNormals = 1
 
@@ -120,6 +144,27 @@ class FieldDataProcessing:
             Normal.append(Normali)
         return Normal
 
+    def Get1dNormal(self):
+        """get unit normal field for 1d curves"""
+        CellPoints = self.GetCellPoints()
+        CellPoints = np.array(CellPoints)
+
+        Npoints = len(CellPoints)
+        CellTangent = np.empty((Npoints, 3))
+
+        for i in range(Npoints):
+            CellTangent[i - 1] = CellPoints[i] - CellPoints[i - 1]
+
+        Rot90 = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+
+        CellNormal = np.empty((Npoints, 3))
+        for i in range(Npoints):
+            CellNormali = np.dot(Rot90, CellTangent[i])
+            CellNormal[i] = CellNormali / np.sqrt(np.dot(CellNormali, CellNormali))
+
+        CellNormal = CellNormal.tolist()
+        return CellNormal
+
 
 class AppendFieldPolyData:
     """append new field data to a given data field"""
@@ -132,6 +177,12 @@ class AppendFieldPolyData:
             FDATA = XMLPolyDataReader(FileName=[inputfile])
         elif self.inputfile.endswith('.vtu'):
             FDATA = XMLUnstructuredGridReader(FileName=[inputfile])
+        elif inputfile.endswith(r'vtk'):
+            temp_F = LegacyVTKReader(FileNames=[inputfile])
+            SaveData(r'/home/hao/.PVFieldData/input_vtk_to_vtu.vtu',
+                     proxy=temp_F)
+            FDATA = XMLUnstructuredGridReader(
+                FileName=[r'/home/hao/.PVFieldData/input_vtk_to_vtu.vtu'])
         else:
             print(r'Err: file cannot be opened:  ' + inputfile)
             importsuccess = False
@@ -184,7 +235,7 @@ polydata.GetCellData().AddArray(array)"""
                      proxy=INSERTDATA)
             self.f_data_in = AppendFieldPolyData(
                 r'/home/hao/.PVFieldData/temp_field_data.vtp').f_data_in
-        elif self.inputfile.endswith(r'.vtu'):
+        elif self.inputfile.endswith(r'.vtu') or self.inputfile.endswith(r'.vtk'):
             SaveData(r'/home/hao/.PVFieldData/temp_field_data.vtu',
                      proxy=INSERTDATA)
             self.f_data_in = AppendFieldPolyData(
@@ -234,7 +285,7 @@ polydata.GetCellData().AddArray(array)"""
                      proxy=INSERTDATA)
             self.f_data_in = AppendFieldPolyData(
                 r'/home/hao/.PVFieldData/temp_field_data.vtp').f_data_in
-        elif self.inputfile.endswith(r'.vtu'):
+        elif self.inputfile.endswith(r'.vtu') or self.inputfile.endswith(r'.vtk'):
             SaveData(r'/home/hao/.PVFieldData/temp_field_data.vtu',
                      proxy=INSERTDATA)
             self.f_data_in = AppendFieldPolyData(
@@ -246,6 +297,6 @@ polydata.GetCellData().AddArray(array)"""
         CELLTOP.PassCellData = 1
 
         if self.inputfile.endswith(r'.vtp'):
-            SaveData(outputfile.split(r'.')[0]+r'.vtp', proxy=CELLTOP)
-        elif self.inputfile.endswith(r'.vtu'):
-            SaveData(outputfile.split(r'.')[0]+r'.vtu', proxy=CELLTOP)
+            SaveData(outputfile.split(r'.')[0] + r'.vtp', proxy=CELLTOP)
+        elif self.inputfile.endswith(r'.vtu') or self.inputfile.endswith(r'.vtk'):
+            SaveData(outputfile.split(r'.')[0] + r'.vtu', proxy=CELLTOP)
