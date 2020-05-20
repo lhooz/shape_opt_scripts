@@ -27,6 +27,8 @@ def generate_sens_RES_field(vn_field_folder, input_sens_file, output_sens_file):
 
     NO_PARAM = len(input_vn_files)
 
+    # test_weights = [1, -1, 0]
+
     current_moving_direction = np.zeros(len(CellSens_Size))
     for i in range(NO_PARAM):
         vn_field_datai = pvfielddata.FieldDataProcessing(input_vn_files[i])
@@ -34,6 +36,7 @@ def generate_sens_RES_field(vn_field_folder, input_sens_file, output_sens_file):
         vn_fieldi = np.array(vn_fieldi)
 
         weighti = np.dot(CellSens_Size, vn_fieldi)
+        # weighti = test_weights[i]
         # print(input_vn_files[i])
         # print(weighti)
         current_moving_direction += weighti * vn_fieldi

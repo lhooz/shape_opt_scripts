@@ -9,7 +9,7 @@ cad_folder = r'/home/hao/ShapeOPT/TestDev2/Vn/Vn_cad'
 mesh_folder = r'/home/hao/ShapeOPT/TestDev2/Vn/Vn_mesh'
 vn_field_folder = r'/home/hao/ShapeOPT/TestDev2/Vn/Vn_field'
 
-input_sens_file = r'/home/hao/ShapeOPT/TestDev2/surface_adjoint.vtk'
+input_sens_file = r'/home/hao/ShapeOPT/TestDev2/CFD/surface_adjoint.vtk'
 output_sens_file = r'/home/hao/ShapeOPT/TestDev2/Sens_RES_Results/sens_RES_field.vtu'
 
 naca_vn_msh.generate_surface_meshes(cad_folder, mesh_folder)
