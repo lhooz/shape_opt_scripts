@@ -2,26 +2,25 @@
 
 import catia_app
 
-FPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012.CATPart'
+FPATH = r'C:\Users\haole\Desktop\EPSRC case files\NACA_spline_test\NACA0012.CATPart'
 PARAM_LIST = [
-    r'original', r'opt_U1_Y', r'opt_U2_Y', r'opt_U3_Y', r'opt_U4_Y',
-    r'opt_U5_Y', r'opt_L1_Y', r'opt_L2_Y', r'opt_L3_Y', r'opt_L4_Y',
-    r'opt_L5_Y', r'opt_LE_Y',
-    r'opt_TE_Y'
+    'original', 'up1', 'up2', 'up3', 'up4', 'up5', 'up6', 'up7', 'up8', 'up9',
+    'up10', 'dp1', 'dp2', 'dp3', 'dp4', 'dp5', 'dp6', 'dp7', 'dp8', 'dp9',
+    'dp10'
 ]
 
 NO_PARAM = len(PARAM_LIST)
 
 for i in range(NO_PARAM):
     PARAMi = PARAM_LIST[i]
-    EXPATH = r'C:/Users/haole/Desktop/EPSRC case files/TestDev2/Vn/NACA0012_' + PARAMi + r'.igs'
+    EXPATH = r'C:\Users\haole\Desktop\EPSRC case files\NACA_spline_test\NACA0012_' + PARAMi + r'_x.igs'
 
-    if PARAMi == r'original':
-        PARAM_name = PARAM_LIST[i + 1]
-        fd_increment = r'0.0001mm'
+    if PARAMi == 'original':
+        PARAM_name = 'Part1\\PartBody\\' + PARAM_LIST[i + 6] + '\\X'
+        fd_increment = '0.0001mm'
     else:
-        PARAM_name = PARAMi
-        fd_increment = r'1mm'
+        PARAM_name = 'Part1\\PartBody\\' + PARAMi + '\\X'
+        fd_increment = '0.1mm'
 
     NEW_PARAM = {PARAM_name: fd_increment}
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-
+import time
 from win32com.client import Dispatch
 
 
@@ -35,6 +35,7 @@ class CatiaApp:
 
     def cadclose(self):
         self.catia.Quit()
+        time.sleep(2)
 
 
 class ManipulateFeature:
