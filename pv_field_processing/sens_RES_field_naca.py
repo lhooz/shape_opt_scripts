@@ -20,6 +20,8 @@ def generate_sens_RES_field(vn_field_folder, input_sens_file, output_sens_file):
     CellNormal = input_field_data.Get1dNormal()
     CellNormal = np.array(CellNormal)
 
+    # CellCenter = input_field_data.GetCellCenters()
+
     input_vn_files = []
     for file in os.listdir(vn_field_folder):
         if file.endswith(r'.vtu'):
@@ -38,7 +40,7 @@ def generate_sens_RES_field(vn_field_folder, input_sens_file, output_sens_file):
         weighti = np.dot(CellSens_Size, vn_fieldi)
         # weighti = test_weights[i]
         # print(input_vn_files[i])
-        # print(weighti)
+        print(input_vn_files[i].split(r'/')[-1].split('.')[0] + r'_weight =', weighti)
         current_moving_direction += weighti * vn_fieldi
 
     current_moving_direction = current_moving_direction / np.sqrt(
@@ -59,6 +61,7 @@ def generate_sens_RES_field(vn_field_folder, input_sens_file, output_sens_file):
                                              CellNormal).tolist()
     sens_residual_field = sens_residual_field.tolist()
 
+    CellSens = CellSens.tolist()
     """appending resulting fields to outputfile"""
     input_file_to_append = pvfielddata.AppendFieldPolyData(input_sens_file)
 
@@ -69,6 +72,7 @@ def generate_sens_RES_field(vn_field_folder, input_sens_file, output_sens_file):
     input_file_to_append.AppendVectorField(sens_residual_vector_field,
                                            r'Sensitivity_RES_Vector')
 
+    input_file_to_append.AppendScalarField(CellSens, r'Surface_Sensitivity_Cell')
     input_file_to_append.AppendVectorField(sens_vector_field,
                                            r'Sensitivity_Vector')
 
